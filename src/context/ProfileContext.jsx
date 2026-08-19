@@ -9,6 +9,7 @@ const defaultProfile = {
   gamesPlayed: 0,
   wins: 0,
   highScore: 0, // best time (seconds), lower = better
+  isProSubscriber: false,
 };
 
 export function ProfileProvider({ children }) {

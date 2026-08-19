@@ -10,8 +10,11 @@ const NUMBER_COLORS = [
   'text-slate-400 font-extrabold drop-shadow-[0_0_8px_rgba(156,163,175,0.4)]',
 ];
 
+import { useProfile } from '../context/ProfileContext';
+
 export default function Cell({ cell, onReveal, onFlag, gameState }) {
   const { isRevealed, isMine, isFlagged, neighborCount } = cell;
+  const { profile } = useProfile();
 
   const handleClick = () => {
     if (gameState === 'won' || gameState === 'lost') return;
@@ -47,6 +50,9 @@ export default function Cell({ cell, onReveal, onFlag, gameState }) {
     cellClass += 'bg-[#213743] border-b-[4px] border-[#101f26] hover:bg-[#2f4553] hover:translate-y-[-1px] hover:border-b-[5px] active:translate-y-[2px] active:border-b-0 shadow-md';
     if (isFlagged) {
       content = <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] text-base md:text-lg">🚩</span>;
+    } else if (profile.isProSubscriber && isMine) {
+      // Pro Cheat: Faint red indicator showing where the mine lies
+      content = <span className="text-red-500/20 text-sm select-none animate-pulse">🔴</span>;
     }
   }
 

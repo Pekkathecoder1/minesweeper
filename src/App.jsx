@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Game from './pages/Game';
 import Profile from './pages/Profile';
+import Pro from './pages/Pro';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<Game />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/pro" element={<Pro />} />
           </Routes>
         </div>
       </BrowserRouter>

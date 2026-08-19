@@ -54,6 +54,18 @@ export default function Navbar() {
           >
             👤 Profile
           </NavLink>
+          <NavLink
+            to="/pro"
+            className={({ isActive }) =>
+              `px-4 py-2 rounded-lg font-semibold text-xs uppercase tracking-wider transition-all duration-300 ${
+                isActive
+                  ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-slate-100 shadow-md shadow-purple-500/20'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+              }`
+            }
+          >
+            💎 Pro
+          </NavLink>
         </div>
 
         {/* Avatar chip */}

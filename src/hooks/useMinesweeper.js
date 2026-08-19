@@ -81,7 +81,6 @@ export function useMinesweeper() {
   const [flagCount, setFlagCount] = useState(0);
   const [time, setTime] = useState(0);
   const timerRef = useRef(null);
-  const firstClick = useRef(true);
 
   const { rows, cols, mines } = DIFFICULTIES[difficulty];
 
@@ -103,7 +102,6 @@ export function useMinesweeper() {
     setGameState('idle');
     setFlagCount(0);
     setTime(0);
-    firstClick.current = true;
   }, [difficulty]);
 
   const changeDifficulty = useCallback((diff) => {
@@ -113,37 +111,33 @@ export function useMinesweeper() {
     setGameState('idle');
     setFlagCount(0);
     setTime(0);
-    firstClick.current = true;
   }, []);
 
   const handleReveal = useCallback((row, col) => {
     if (gameState === 'won' || gameState === 'lost') return;
-    setBoard((prev) => {
-      const cell = prev[row][col];
-      if (cell.isRevealed || cell.isFlagged) return prev;
 
-      let workingBoard = prev;
+    const cell = board[row][col];
+    if (cell.isRevealed || cell.isFlagged) return;
 
-      // First click: place mines ensuring safe first click
-      if (firstClick.current) {
-        firstClick.current = false;
-        workingBoard = placeMines(prev, rows, cols, mines, row, col);
-        setGameState('playing');
-      }
+    let nextBoard = board;
+    if (gameState === 'idle') {
+      nextBoard = placeMines(board, rows, cols, mines, row, col);
+      setGameState('playing');
+    }
 
-      if (workingBoard[row][col].isMine) {
-        // Reveal all mines
-        const lostBoard = workingBoard.map((r) =>
-          r.map((c) => ({
-            ...c,
-            isRevealed: c.isMine ? true : c.isRevealed,
-          }))
-        );
-        setGameState('lost');
-        return lostBoard;
-      }
-
-      const revealed = revealCells(workingBoard, row, col, rows, cols);
+    if (nextBoard[row][col].isMine) {
+      // Reveal all mines
+      const lostBoard = nextBoard.map((r) =>
+        r.map((c) => ({
+          ...c,
+          isRevealed: c.isMine ? true : c.isRevealed,
+        }))
+      );
+      setBoard(lostBoard);
+      setGameState('lost');
+    } else {
+      const revealed = revealCells(nextBoard, row, col, rows, cols);
+      setBoard(revealed);
 
       // Check win condition
       const totalSafe = rows * cols - mines;
@@ -151,23 +145,20 @@ export function useMinesweeper() {
       if (revealedCount === totalSafe) {
         setGameState('won');
       }
-
-      return revealed;
-    });
-  }, [gameState, rows, cols, mines]);
+    }
+  }, [gameState, board, rows, cols, mines]);
 
   const handleFlag = useCallback((e, row, col) => {
     e.preventDefault();
     if (gameState === 'won' || gameState === 'lost' || gameState === 'idle') return;
-    setBoard((prev) => {
-      const cell = prev[row][col];
-      if (cell.isRevealed) return prev;
-      const newBoard = prev.map((r) => r.map((c) => ({ ...c })));
-      newBoard[row][col].isFlagged = !newBoard[row][col].isFlagged;
-      setFlagCount((f) => f + (newBoard[row][col].isFlagged ? 1 : -1));
-      return newBoard;
-    });
-  }, [gameState]);
+    const cell = board[row][col];
+    if (cell.isRevealed) return;
+    
+    const newBoard = board.map((r) => r.map((c) => ({ ...c })));
+    newBoard[row][col].isFlagged = !newBoard[row][col].isFlagged;
+    setFlagCount((f) => f + (newBoard[row][col].isFlagged ? 1 : -1));
+    setBoard(newBoard);
+  }, [gameState, board]);
 
   return {
     board,
